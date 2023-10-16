@@ -74,4 +74,30 @@ class MovieController extends AbstractController
         $movies = $movieRepository->findBy([], ['publication_on' => $order], $limit, $offset);
         return new JsonResponse($serializer->serialize($movies, 'json'), Response::HTTP_OK, [], true);
     }
+
+    #[Route('/{id<\d+>}', name: 'api.movie.update', methods: ['PUT'])]
+    public function update(
+        #[MapEntity] Movie      $movie,
+        Request                 $request,
+        SerializerInterface     $serializer,
+        EntityManagerInterface  $manager,
+        ValidatorInterface      $validator
+    ): JsonResponse
+    {
+        $inputMovie = $serializer->deserialize($request->getContent(), Movie::class, 'json');
+
+        if ($inputMovie instanceof Movie) {
+            $errors = $validator->validate($movie, null, ['movie:update']);
+            if ($errors->count() > 0) {
+                return new JsonResponse($serializer->serialize($errors, 'json'), Response::HTTP_BAD_REQUEST, [], true);
+            }
+            $movie->setName($inputMovie->getName() ?? $movie->getName());
+            $movie->setDescription($inputMovie->getDescription() ?? $movie->getDescription());
+            $movie->setPublicationOn($inputMovie->getPublicationOn() ?? $movie->getPublicationOn());
+            $manager->persist($movie);
+            $manager->flush();
+        }
+
+        return new JsonResponse($serializer->serialize($movie, 'json'), Response::HTTP_OK, [], true);
+    }
 }
