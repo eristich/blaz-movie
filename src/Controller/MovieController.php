@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Repository\MovieRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Request;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -49,10 +49,9 @@ class MovieController extends AbstractController
         return new JsonResponse($serializer->serialize($movie, 'json'), Response::HTTP_CREATED, [], true);
     }
 
-    #[Route('/{movieId<\d+>}', name: 'api.movie.get_id', methods: ['GET'])]
-    #[ParamConverter('movie', options: ['id' => 'movieId'])]
+    #[Route('/{id<\d+>}', name: 'api.movie.get_id', methods: ['GET'])]
     public function get_id(
-        Movie               $movie,
+        #[MapEntity] Movie  $movie,
         SerializerInterface $serializer
     ): JsonResponse
     {
