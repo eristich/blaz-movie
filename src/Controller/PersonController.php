@@ -47,4 +47,13 @@ class PersonController extends AbstractController
 
         return new JsonResponse($serializer->serialize($person, 'json'), Response::HTTP_CREATED, [], true);
     }
+
+    #[Route('/{id<\d+>}', name: 'api.person.get_id', methods: ['GET'])]
+    public function get_id(
+        #[MapEntity] Person     $person,
+        SerializerInterface     $serializer
+    ): JsonResponse
+    {
+        return new JsonResponse($serializer->serialize($person, 'json'), Response::HTTP_OK, [], true);
+    }
 }
