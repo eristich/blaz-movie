@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Person;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use App\Entity\Movie;
@@ -17,7 +18,8 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $this->manager = $manager;
-        $this->makeMovies(30);
+        $this->makeMovies(60);
+        $this->makePersons(60);
     }
 
     private function makeMovies(int $it = 40): void {
@@ -27,6 +29,17 @@ class AppFixtures extends Fixture
                 ->setDescription($this->faker->realText(300, 2))
                 ->setPublicationOn($this->faker->dateTimeBetween());
             $this->manager->persist($movie);
+        }
+        $this->manager->flush();
+    }
+
+    private function makePersons(int $it = 40): void {
+        for ($i = 0; $i < $it; $i++) {
+            $person = (new Person())
+                ->setFirstname($this->faker->firstName())
+                ->setLastname($this->faker->lastName())
+                ->setBirthday($this->faker->dateTimeBetween());
+            $this->manager->persist($person);
         }
         $this->manager->flush();
     }
