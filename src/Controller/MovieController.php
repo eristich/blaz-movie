@@ -167,7 +167,7 @@ class MovieController extends AbstractController
         $inputMovie = $serializer->deserialize($request->getContent(), Movie::class, 'json');
 
         if ($inputMovie instanceof Movie) {
-            $errors = $validator->validate($movie, null, ['movie:update']);
+            $errors = $validator->validate($inputMovie, null, ['movie:update']);
             if ($errors->count() > 0) {
                 return new JsonResponse($serializer->serialize($errors, 'json'), Response::HTTP_BAD_REQUEST, [], true);
             }
