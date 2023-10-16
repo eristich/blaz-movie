@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Entity\Movie;
+use Nelmio\ApiDocBundle\Annotation\Model;
 
 #[Route('/api/v1/movie')]
 #[OA\Tag(name: 'Movie')]
@@ -28,6 +29,15 @@ use App\Entity\Movie;
 class MovieController extends AbstractController
 {
     #[Route('', name: 'api.movie.create', methods: ['POST'])]
+    #[OA\RequestBody(
+        required: true,
+        content: new Model(type: Movie::class, groups: ['movie:create'])
+    )]
+    #[OA\Response(
+        response: 201,
+        description: 'Content of created movie',
+        content: new Model(type: Movie::class, groups: ['movie:get-one'])
+    )]
     public function create(
         Request                 $request,
         ValidatorInterface      $validator,
