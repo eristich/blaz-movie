@@ -182,6 +182,20 @@ class MovieController extends AbstractController
     }
 
     #[Route('/{id<\d+>}', name: 'api.movie.remove', methods: ['DELETE'])]
+    #[OA\Parameter(
+        name: 'id',
+        in: 'path',
+        required: true,
+        allowEmptyValue: false,
+        schema: new OA\Schema(
+            type: 'integer'
+        )
+    )]
+    #[OA\Response(
+        response: 204,
+        description: 'No content',
+        content: null
+    )]
     public function remove(
         #[MapEntity] Movie      $movie,
         EntityManagerInterface  $manager,
