@@ -100,4 +100,15 @@ class MovieController extends AbstractController
 
         return new JsonResponse($serializer->serialize($movie, 'json'), Response::HTTP_OK, [], true);
     }
+
+    #[Route('/{id<\d+>}', name: 'api.movie.remove', methods: ['DELETE'])]
+    public function remove(
+        #[MapEntity] Movie      $movie,
+        EntityManagerInterface  $manager,
+    ): JsonResponse
+    {
+        $manager->remove($movie);
+        $manager->flush();
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT, [], false);
+    }
 }
