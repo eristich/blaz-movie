@@ -138,6 +138,24 @@ class MovieController extends AbstractController
     }
 
     #[Route('/{id<\d+>}', name: 'api.movie.update', methods: ['PUT'])]
+    #[OA\Parameter(
+        name: 'id',
+        in: 'path',
+        required: true,
+        allowEmptyValue: false,
+        schema: new OA\Schema(
+            type: 'integer'
+        )
+    )]
+    #[OA\RequestBody(
+        required: false,
+        content: new Model(type: Movie::class, groups: ['movie:update'])
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Content of updated movie',
+        content: new Model(type: Movie::class, groups: ['movie:get-one'])
+    )]
     public function update(
         #[MapEntity] Movie      $movie,
         Request                 $request,
