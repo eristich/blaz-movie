@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\MovieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Request;
@@ -56,5 +57,22 @@ class MovieController extends AbstractController
     ): JsonResponse
     {
         return new JsonResponse($serializer->serialize($movie, 'json'), Response::HTTP_OK, [], true);
+    }
+
+    #[Route('', name: 'api.movie.get_all', methods: ['GET'])]
+    public function get_all(
+        Request             $request,
+        SerializerInterface $serializer,
+        MovieRepository     $movieRepository
+    ): JsonResponse
+    {
+        $limit = $request->query->getInt('limit', 20);
+        $limit = (1 <= $limit) && ($limit <= 20) ? $limit : 20;
+        $page = $request->query->getInt('page', 1);
+        $offset = ($page - 1) * $limit;
+        $order = strtolower($request->query->getString('order', 'DESC'));
+        $order = in_array($order, ['desc', 'asc']) ? $order : 'DESC';
+        $movies = $movieRepository->findBy([], ['publication_on' => $order], $limit, $offset);
+        return new JsonResponse($serializer->serialize($movies, 'json'), Response::HTTP_OK, [], true);
     }
 }
