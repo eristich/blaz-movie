@@ -100,4 +100,15 @@ class PersonController extends AbstractController
 
         return new JsonResponse($serializer->serialize($person, 'json'), Response::HTTP_OK, [], true);
     }
+
+    #[Route('/{id<\d+>}', name: 'api.person.remove', methods: ['DELETE'])]
+    public function remove(
+        #[MapEntity] Person     $person,
+        EntityManagerInterface  $manager,
+    ): JsonResponse
+    {
+        $manager->remove($person);
+        $manager->flush();
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT, [], false);
+    }
 }
