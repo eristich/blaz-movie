@@ -74,4 +74,30 @@ class PersonController extends AbstractController
         $persons = $personRepository->findBy([], ['birthday' => $order], $limit, $offset);
         return new JsonResponse($serializer->serialize($persons, 'json'), Response::HTTP_OK, [], true);
     }
+
+    #[Route('/{id<\d+>}', name: 'api.person.update', methods: ['PUT'])]
+    public function update(
+        #[MapEntity] Person     $person,
+        Request                 $request,
+        SerializerInterface     $serializer,
+        EntityManagerInterface  $manager,
+        ValidatorInterface      $validator
+    ): JsonResponse
+    {
+        $inputPerson = $serializer->deserialize($request->getContent(), Person::class, 'json');
+
+        if ($inputPerson instanceof Person) {
+            $errors = $validator->validate($inputPerson, null, ['movie:update']);
+            if ($errors->count() > 0) {
+                return new JsonResponse($serializer->serialize($errors, 'json'), Response::HTTP_BAD_REQUEST, [], true);
+            }
+            $person->setFirstname($inputPerson->getFirstname() ?? $person->getFirstname());
+            $person->setLastname($inputPerson->getLastname() ?? $person->getLastname());
+            $person->setBirthday($inputPerson->getBirthday() ?? $person->getBirthday());
+            $manager->persist($person);
+            $manager->flush();
+        }
+
+        return new JsonResponse($serializer->serialize($person, 'json'), Response::HTTP_OK, [], true);
+    }
 }
