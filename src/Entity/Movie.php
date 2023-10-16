@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\MovieRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 // todo: add validation for "publication_on" (Y-m-d) and make sure it's stored in ISO 8601 format
@@ -15,9 +16,11 @@ class Movie
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['movie:get-one', 'movie:get-many'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 128)]
+    #[Groups(['movie:get-one', 'movie:get-many', 'movie:create', 'movie:update'])]
     #[Assert\Length(
         min: 1,
         max: 128,
@@ -28,6 +31,7 @@ class Movie
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, length: 2048, nullable: true)]
+    #[Groups(['movie:get-one', 'movie:get-many', 'movie:create', 'movie:update'])]
     #[Assert\Length(
         min: 1,
         max: 2048,
@@ -38,6 +42,7 @@ class Movie
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Groups(['movie:get-one', 'movie:get-many', 'movie:create', 'movie:update'])]
     private ?\DateTimeInterface $publication_on = null;
 
     public function getId(): ?int
