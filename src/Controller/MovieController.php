@@ -83,6 +83,44 @@ class MovieController extends AbstractController
     }
 
     #[Route('', name: 'api.movie.get_all', methods: ['GET'])]
+    #[OA\Parameter(
+        name: 'page',
+        in: 'query',
+        required: false,
+        allowEmptyValue: true,
+        schema: new OA\Schema(
+            type: 'integer',
+            default: 1
+        )
+    )]
+    #[OA\Parameter(
+        name: 'limit',
+        in: 'query',
+        required: false,
+        allowEmptyValue: true,
+        schema: new OA\Schema(
+            type: 'integer',
+            default: 20
+        )
+    )]
+    #[OA\Parameter(
+        name: 'order',
+        in: 'query',
+        required: false,
+        allowEmptyValue: true,
+        schema: new OA\Schema(
+            type: 'string',
+            default: 'DESC'
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'List of movie with pagination',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Movie::class, groups: ['movie:get-many']))
+        )
+    )]
     public function get_all(
         Request             $request,
         SerializerInterface $serializer,
