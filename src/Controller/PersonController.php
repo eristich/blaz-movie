@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Person;
+use App\Repository\PersonRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -55,5 +56,22 @@ class PersonController extends AbstractController
     ): JsonResponse
     {
         return new JsonResponse($serializer->serialize($person, 'json'), Response::HTTP_OK, [], true);
+    }
+
+    #[Route('', name: 'api.person.get_all', methods: ['GET'])]
+    public function get_all(
+        Request             $request,
+        SerializerInterface $serializer,
+        PersonRepository    $personRepository
+    ): JsonResponse
+    {
+        $limit = $request->query->getInt('limit', 20);
+        $limit = (1 <= $limit) && ($limit <= 20) ? $limit : 20;
+        $page = $request->query->getInt('page', 1);
+        $offset = ($page - 1) * $limit;
+        $order = strtolower($request->query->getString('order', 'DESC'));
+        $order = in_array($order, ['desc', 'asc']) ? $order : 'DESC';
+        $persons = $personRepository->findBy([], ['birthday' => $order], $limit, $offset);
+        return new JsonResponse($serializer->serialize($persons, 'json'), Response::HTTP_OK, [], true);
     }
 }
