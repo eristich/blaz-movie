@@ -60,6 +60,20 @@ class MovieController extends AbstractController
     }
 
     #[Route('/{id<\d+>}', name: 'api.movie.get_id', methods: ['GET'])]
+    #[OA\Parameter(
+        name: 'id',
+        in: 'path',
+        required: true,
+        allowEmptyValue: false,
+        schema: new OA\Schema(
+            type: 'integer'
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Content of targeted movie',
+        content: new Model(type: Movie::class, groups: ['movie:get-one'])
+    )]
     public function get_id(
         #[MapEntity] Movie  $movie,
         SerializerInterface $serializer
