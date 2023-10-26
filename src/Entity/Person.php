@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PersonRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -22,6 +24,18 @@ class Person
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $birthday = null;
+
+    #[ORM\OneToMany(mappedBy: 'personId', targetEntity: RelDirector::class)]
+    private Collection $directors;
+
+    #[ORM\OneToMany(mappedBy: 'personId', targetEntity: RelActor::class)]
+    private Collection $actors;
+
+    public function __construct()
+    {
+        $this->directors = new ArrayCollection();
+        $this->actors = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -60,6 +74,66 @@ class Person
     public function setBirthday(\DateTimeInterface $birthday): static
     {
         $this->birthday = $birthday;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, RelDirector>
+     */
+    public function getDirectors(): Collection
+    {
+        return $this->directors;
+    }
+
+    public function addDirector(RelDirector $director): static
+    {
+        if (!$this->directors->contains($director)) {
+            $this->directors->add($director);
+            $director->setPerson($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDirector(RelDirector $director): static
+    {
+        if ($this->directors->removeElement($director)) {
+            // set the owning side to null (unless already changed)
+            if ($director->getPerson() === $this) {
+                $director->setPerson(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, RelActor>
+     */
+    public function getActors(): Collection
+    {
+        return $this->actors;
+    }
+
+    public function addActor(RelActor $actor): static
+    {
+        if (!$this->actors->contains($actor)) {
+            $this->actors->add($actor);
+            $actor->setPerson($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActor(RelActor $actor): static
+    {
+        if ($this->actors->removeElement($actor)) {
+            // set the owning side to null (unless already changed)
+            if ($actor->getPerson() === $this) {
+                $actor->setPerson(null);
+            }
+        }
 
         return $this;
     }
