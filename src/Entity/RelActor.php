@@ -1,13 +1,12 @@
 <?php
 
-// todo(entity): generate unique key of <movie_id + person_id> columns to prevent duplicate in records
-
 namespace App\Entity;
 
 use App\Repository\RelActorRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RelActorRepository::class)]
+#[ORM\UniqueConstraint('actor_composite_idx', columns: ['person_id', 'movie_id'])]
 class RelActor
 {
     #[ORM\Id]
