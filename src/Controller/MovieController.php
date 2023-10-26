@@ -6,6 +6,8 @@ use App\Entity\Person;
 use App\Entity\RelActor;
 use App\Entity\RelDirector;
 use App\Repository\MovieRepository;
+use App\Repository\RelActorRepository;
+use App\Repository\RelDirectorRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Request;
@@ -262,5 +264,62 @@ class MovieController extends AbstractController
         $manager->flush();
 
         return new JsonResponse(null, Response::HTTP_CREATED, [], false);
+    }
+
+    #[Route('/{movie<\d+>}/{_personType}/{person<\d+>}', name: 'api.movie.unlink_person', requirements: ['_personType' => 'director|actor'], methods: ['DELETE'])]
+    #[OA\Parameter(
+        name: 'movie',
+        in: 'path',
+        required: true,
+        allowEmptyValue: false,
+        schema: new OA\Schema(
+            type: 'integer'
+        )
+    )]
+    #[OA\Parameter(
+        name: '_personType',
+        in: 'path',
+        required: true,
+        allowEmptyValue: false,
+        schema: new OA\Schema(
+            type: 'string',
+            enum: ['director', 'actor']
+        )
+    )]
+    #[OA\Parameter(
+        name: 'person',
+        in: 'path',
+        required: true,
+        allowEmptyValue: false,
+        schema: new OA\Schema(
+            type: 'integer'
+        )
+    )]
+    #[OA\Response(
+        response: 204,
+        description: 'Success to unlink person from movie'
+    )]
+    public function unlinkPerson(
+        string                                              $_personType,
+        #[MapEntity(mapping: ['movie' => 'id'])] Movie      $movie,
+        #[MapEntity(mapping: ['person' => 'id'])] Person    $person,
+        EntityManagerInterface                              $manager,
+        RelActorRepository                                  $relActorRepository,
+        RelDirectorRepository                               $relDirectorRepository
+    ): JsonResponse
+    {
+        if (strtolower($_personType) === 'director') {
+            $relDirector = $relDirectorRepository->findOneBy(['movie' => $movie, 'person' => $person]);
+            $manager->remove($relDirector);
+            $manager->persist($relDirector);
+        } elseif (strtolower($_personType) === 'actor') {
+            $relActor = $relActorRepository->findOneBy(['movie' => $movie, 'person' => $person]);
+            $manager->remove($relActor);
+        } else {
+            throw new NotFoundHttpException();
+        }
+        $manager->flush();
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT, [], false);
     }
 }
