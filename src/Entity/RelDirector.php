@@ -1,5 +1,7 @@
 <?php
 
+// todo(entity): generate unique key of <movie_id + person_id> columns to prevent duplicate in records
+
 namespace App\Entity;
 
 use App\Repository\RelDirectorRepository;
