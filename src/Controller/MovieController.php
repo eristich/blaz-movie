@@ -2,6 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Person;
+use App\Entity\RelActor;
+use App\Entity\RelDirector;
 use App\Repository\MovieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -10,6 +13,7 @@ use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -204,5 +208,59 @@ class MovieController extends AbstractController
         $manager->remove($movie);
         $manager->flush();
         return new JsonResponse(null, Response::HTTP_NO_CONTENT, [], false);
+    }
+
+    #[Route('/{movie<\d+>}/{_personType}/{person<\d+>}', name: 'api.movie.link_person', requirements: ['_personType' => 'director|actor'], methods: ['POST'])]
+    #[OA\Parameter(
+        name: 'movie',
+        in: 'path',
+        required: true,
+        allowEmptyValue: false,
+        schema: new OA\Schema(
+            type: 'integer'
+        )
+    )]
+    #[OA\Parameter(
+        name: '_personType',
+        in: 'path',
+        required: true,
+        allowEmptyValue: false,
+        schema: new OA\Schema(
+            type: 'string',
+            enum: ['director', 'actor']
+        )
+    )]
+    #[OA\Parameter(
+        name: 'person',
+        in: 'path',
+        required: true,
+        allowEmptyValue: false,
+        schema: new OA\Schema(
+            type: 'integer'
+        )
+    )]
+    #[OA\Response(
+        response: 201,
+        description: 'Success to add person in movie'
+    )]
+    public function linkPerson(
+        string                                              $_personType,
+        #[MapEntity(mapping: ['movie' => 'id'])] Movie      $movie,
+        #[MapEntity(mapping: ['person' => 'id'])] Person    $person,
+        EntityManagerInterface                              $manager,
+    ): JsonResponse
+    {
+        if (strtolower($_personType) === 'director') {
+            $director = (new RelDirector())->setMovie($movie)->setPerson($person);
+            $manager->persist($director);
+        } elseif (strtolower($_personType) === 'actor') {
+            $actor = (new RelActor())->setMovie($movie)->setPerson($person);
+            $manager->persist($actor);
+        } else {
+            throw new NotFoundHttpException();
+        }
+        $manager->flush();
+
+        return new JsonResponse(null, Response::HTTP_CREATED, [], false);
     }
 }
