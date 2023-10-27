@@ -9,6 +9,7 @@ use App\Repository\MovieRepository;
 use App\Repository\RelActorRepository;
 use App\Repository\RelDirectorRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\Request;
 use JMS\Serializer\SerializerInterface;
@@ -81,11 +82,16 @@ class MovieController extends AbstractController
         content: new Model(type: Movie::class, groups: ['movie:get-one'])
     )]
     public function get_id(
-        #[MapEntity] Movie  $movie,
-        SerializerInterface $serializer
+        #[MapEntity] Movie      $movie,
+        SerializerInterface     $serializer
     ): JsonResponse
     {
-        return new JsonResponse($serializer->serialize($movie, 'json'), Response::HTTP_OK, [], true);
+        return new JsonResponse(
+            $serializer->serialize($movie, 'json', SerializationContext::create()->setGroups(['movie:get-one'])),
+            Response::HTTP_OK,
+            [],
+            true
+        );
     }
 
     #[Route('', name: 'api.movie.get_all', methods: ['GET'])]
