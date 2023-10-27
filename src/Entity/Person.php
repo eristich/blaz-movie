@@ -25,10 +25,10 @@ class Person
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $birthday = null;
 
-    #[ORM\OneToMany(mappedBy: 'personId', targetEntity: RelDirector::class)]
+    #[ORM\OneToMany(mappedBy: 'person', targetEntity: RelDirector::class)]
     private Collection $directors;
 
-    #[ORM\OneToMany(mappedBy: 'personId', targetEntity: RelActor::class)]
+    #[ORM\OneToMany(mappedBy: 'person', targetEntity: RelActor::class)]
     private Collection $actors;
 
     public function __construct()
