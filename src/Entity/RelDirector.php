@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\RelDirectorRepository;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: RelDirectorRepository::class)]
 #[ORM\UniqueConstraint('director_composite_idx', columns: ['person_id', 'movie_id'])]
@@ -16,6 +17,7 @@ class RelDirector
 
     #[ORM\ManyToOne(inversedBy: 'directors')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['movie:get-one'])]
     private ?Person $person = null;
 
     #[ORM\ManyToOne(inversedBy: 'directors')]

@@ -48,9 +48,11 @@ class Movie
     private ?\DateTimeInterface $publication_on = null;
 
     #[ORM\OneToMany(mappedBy: 'movie', targetEntity: RelDirector::class)]
+    #[Groups(['movie:get-one'])]
     private Collection $directors;
 
     #[ORM\OneToMany(mappedBy: 'movie', targetEntity: RelActor::class)]
+    #[Groups(['movie:get-one'])]
     private Collection $actors;
 
     public function __construct()
