@@ -125,6 +125,26 @@ class MovieController extends AbstractController
             default: 'DESC'
         )
     )]
+    #[OA\Parameter(
+        name: 'actors',
+        in: 'query',
+        required: false,
+        allowEmptyValue: true,
+        schema: new OA\Schema(
+            type: 'string',
+            example: '1,2,3'
+        )
+    )]
+    #[OA\Parameter(
+        name: 'directors',
+        in: 'query',
+        required: false,
+        allowEmptyValue: true,
+        schema: new OA\Schema(
+            type: 'string',
+            example: '1,2,3'
+        )
+    )]
     #[OA\Response(
         response: 200,
         description: 'List of movie with pagination',
