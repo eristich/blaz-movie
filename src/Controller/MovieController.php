@@ -139,14 +139,28 @@ class MovieController extends AbstractController
         MovieRepository     $movieRepository
     ): JsonResponse
     {
+        // process query parameters
         $limit = $request->query->getInt('limit', 20);
         $limit = (1 <= $limit) && ($limit <= 20) ? $limit : 20;
         $page = $request->query->getInt('page', 1);
         $offset = ($page - 1) * $limit;
-        $order = strtolower($request->query->getString('order', 'DESC'));
-        $order = in_array($order, ['desc', 'asc']) ? $order : 'DESC';
-        $movies = $movieRepository->findBy([], ['publication_on' => $order], $limit, $offset);
-        return new JsonResponse($serializer->serialize($movies, 'json'), Response::HTTP_OK, [], true);
+        $order = strtoupper($request->query->getString('order', 'DESC'));
+        $order = in_array($order, ['DESC', 'ASC']) ? $order : 'DESC';
+        $actorIds = explode(',', $request->query->getString('actors', ''));
+        $directorIds = explode(',', $request->query->getString('directors', ''));
+
+        $movies = $movieRepository->findByPersons($actorIds, $directorIds, $order)
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return new JsonResponse(
+            $serializer->serialize($movies, 'json', SerializationContext::create()->setGroups(['movie:get-one'])),
+            Response::HTTP_OK,
+            [],
+            true
+        );
     }
 
     #[Route('/{id<\d+>}', name: 'api.movie.update', methods: ['PUT'])]
