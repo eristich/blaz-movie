@@ -47,7 +47,7 @@ DATABASE_URL="postgresql://<USER>:<PASSWORD>@127.0.0.1:5432/blaz_movie?serverVer
 ### 4. Create a database
 
 ```bash
-php console doctrine:database:create
+php bin/console doctrine:database:create
 ```
 
 ### 5. Fill the database
