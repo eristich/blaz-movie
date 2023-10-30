@@ -176,7 +176,7 @@ class MovieController extends AbstractController
             ->getResult();
 
         return new JsonResponse(
-            $serializer->serialize($movies, 'json', SerializationContext::create()->setGroups(['movie:get-one'])),
+            $serializer->serialize($movies, 'json', SerializationContext::create()->setGroups(['movie:get-many'])),
             Response::HTTP_OK,
             [],
             true
